@@ -1,0 +1,75 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Gaming Guides
+    link(rel="stylesheet" href="styles.css")
+
+  body
+    header
+      h1 Gaming Guides & Tips
+      nav
+        ul
+          li: a(href="#home") Home
+          li: a(href="#guides") Guides
+          li: a(href="#search") Search
+          li: a(href="#trending") Trending
+
+    // Home Section
+    section#home
+      h2 Welcome to Gaming Guides
+      p Find expert tips, strategies, and walkthroughs for your favorite games.
+      a.btn(href="#guides") Explore Guides
+
+    // Guides Section
+    section#guides
+      h2 Latest Guides
+      .guide
+        h3 Pro Tips for Fortnite
+        p Best strategies to dominate in battle royale.
+        a(href="#") Read More
+      .guide
+        h3 Minecraft Building Guide
+        p Step-by-step instructions to build amazing structures.
+        a(href="#") Read More
+      .guide
+        h3 Elden Ring Boss Strategies
+        p How to defeat the toughest bosses in Elden Ring.
+        a(href="#") Read More
+
+    // Search Section
+    section#search
+      h2 Search for Guides
+      .search-bar
+        input#searchInput(type="text" placeholder="Search by game title or keyword...")
+        button(onclick="searchGuides()") Search
+
+    section#results
+      h2 Search Results
+      p Results will be displayed here...
+
+    // Trending Section
+    section#trending
+      h2 Top-Rated Guides
+      .guide
+        h3 Advanced Warzone Tactics
+        p Learn the best strategies for dominating in Call of Duty: Warzone.
+        a(href="#") Read More
+      .guide
+        h3 League of Legends Champion Mastery
+        p Tips to climb the ranks and master your favorite champions.
+        a(href="#") Read More
+      .guide
+        h3 Speedrunning Zelda: Breath of the Wild
+        p Discover the best speedrunning tricks to beat the game in record time.
+        a(href="#") Read More
+
+    footer
+      p &copy; 2025 Gaming Guides. All rights reserved.
+
+    script.
+      function searchGuides() {
+        let input = document.getElementById('searchInput').value.toLowerCase();
+        alert('Searching for: ' + input);
+      }

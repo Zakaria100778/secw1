@@ -1,0 +1,16 @@
+extends layout
+
+block content
+    .main-content
+        h1 User List
+        table(border=1)
+            tr
+                th ID
+                th Username
+                th Action
+            each user in data
+                tr
+                    td #{user.User_ID}
+                    td #{user.Username}
+                    td
+                        a(href=`/profile/${user.User_ID}`) View Profile

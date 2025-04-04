@@ -1,0 +1,12 @@
+extends layout
+
+block content
+  .detail-container
+    h1 #{guide.Title || 'Guide Details'}
+    p #{guide.Description || 'No description available.'}
+    
+    //- Show author if available
+    if guide.Username
+      p Author: #{guide.Username}
+    
+    a(href="/listing") ← Back to Guides

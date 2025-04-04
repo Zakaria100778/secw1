@@ -1,0 +1,18 @@
+extends layout
+
+block content
+    .main-content
+        h1 #{user.Username}'s Profile
+        table(border=1)
+            tr
+                th Field
+                th Value
+            tr
+                td User ID
+                td #{user.User_ID}
+            tr
+                td Username
+                td #{user.Username}
+            tr
+                td Email
+                td #{user.Email || 'N/A'}

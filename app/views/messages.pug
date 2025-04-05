@@ -1,0 +1,46 @@
+extends layout
+
+block content
+  .messages-container
+    h2 Chat with #{receiverName}
+
+    .messages-box
+      each m in messages
+        .message
+          strong #{m.SenderName}:
+          |  #{m.Message_Text}
+          small(style="float: right") #{new Date(m.Sent_At).toLocaleString()}
+
+    hr
+
+    form(action=`/send/${receiverId}`, method="POST")
+      textarea(name="message", rows="3", required)
+      br
+      button(type="submit") Send
+
+  style.
+    .messages-box {
+      background-color: #f4f4f4;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .message {
+      margin-bottom: 1rem;
+    }
+    textarea {
+      width: 100%;
+      font-size: 1rem;
+    }
+    button {
+      margin-top: 0.5rem;
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+    }

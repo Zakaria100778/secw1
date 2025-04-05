@@ -1,0 +1,52 @@
+extends layout
+
+block content
+  .leaderboard-container
+    h1 Leaderboard 🏆
+    p The top users ranked by total likes on their guides.
+
+    if users.length
+      table
+        thead
+          tr
+            th Rank
+            th Username
+            th Guides Submitted
+            th Likes Received
+        tbody
+          each user, index in users
+            tr
+              td #{index + 1}
+              td= user.Username
+              td= user.guideCount
+              td= user.likeCount
+    else
+      p No users found.
+
+  style.
+    .leaderboard-container {
+      max-width: 800px;
+      margin: auto;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    tr:nth-child(even) {
+      background-color: #fafafa;
+    }

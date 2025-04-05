@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const db = require('./services/db');
+const db = require("./services/db");
 const bcrypt = require("bcryptjs");
 
 // Homepage
 router.get("/", (req, res) => {
   res.render("index", {
-    title: 'My index page',
-    heading: 'Ultimate Game Guides!',
-    layout: 'layout'
+    title: "My index page",
+    heading: "Ultimate Game Guides!",
+    layout: "layout",
   });
 });
 
@@ -17,9 +17,9 @@ router.get("/user-list", async (req, res) => {
   try {
     const results = await db.query("SELECT * FROM Users");
     res.render("user-list", {
-      title: 'User List',
+      title: "User List",
       data: results,
-      layout: 'layout'
+      layout: "layout",
     });
   } catch (err) {
     console.error(err);
@@ -30,43 +30,73 @@ router.get("/user-list", async (req, res) => {
 // Profile
 router.get("/profile/:id", async (req, res) => {
   try {
-    const results = await db.query("SELECT * FROM Users WHERE User_ID = ?", [req.params.id]);
+    const userId = req.params.id;
+
+    // Get user basic info
+    const results = await db.query("SELECT * FROM Users WHERE User_ID = ?", [userId]);
     if (results.length === 0) return res.status(404).send("User not found");
 
     const user = results[0];
+
+    // Count guides
+    const [guideCount] = await db.query(
+      "SELECT COUNT(*) AS total FROM Guides WHERE User_ID = ?",
+      [userId]
+    );
+
+    // Count total likes across user's guides
+    const [likeCount] = await db.query(
+      `SELECT COUNT(*) AS total FROM Likes 
+       WHERE Guide_ID IN (SELECT Guide_ID FROM Guides WHERE User_ID = ?) 
+       AND Value = 'like'`,
+      [userId]
+    );
+
     res.render("profile", {
       title: `${user.Username}'s Profile`,
       user,
-      layout: 'layout'
+      guideCount: guideCount.total,
+      likeCount: likeCount.total,
+      layout: "layout"
     });
+
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");
   }
 });
 
-// Tags page
-router.get("/Tags", (req, res) => {
-  res.render("Tags", {
-    title: 'My Tags page',
-    heading: 'Tags',
-    layout: 'layout'
-  });
-});
 
-// Guide detail
+// Guide detail + comments + likes/dislikes ✅
 router.get("/detail/:id", async (req, res) => {
   try {
-    const results = await db.query(
-      'SELECT g.*, u.Username FROM Guides g JOIN Users u ON g.User_ID = u.User_ID WHERE g.Guide_ID = ?',
+    const [guide] = await db.query(
+      "SELECT g.*, u.Username FROM Guides g JOIN Users u ON g.User_ID = u.User_ID WHERE g.Guide_ID = ?",
       [req.params.id]
     );
-    if (results.length === 0) return res.status(404).send("Guide not found");
+    if (!guide) return res.status(404).send("Guide not found");
+
+    const comments = await db.query(
+      "SELECT c.Comment_Text, u.Username FROM Comments c JOIN Users u ON c.User_ID = u.User_ID WHERE c.Guide_ID = ?",
+      [req.params.id]
+    );
+
+    const [likeCount] = await db.query(
+      "SELECT COUNT(*) AS count FROM Likes WHERE Guide_ID = ? AND Value = 'like'",
+      [req.params.id]
+    );
+    const [dislikeCount] = await db.query(
+      "SELECT COUNT(*) AS count FROM Likes WHERE Guide_ID = ? AND Value = 'dislike'",
+      [req.params.id]
+    );
 
     res.render("detail", {
-      title: results[0].Title,
-      guide: results[0],
-      layout: 'layout'
+      title: guide.Title,
+      guide,
+      comments,
+      likes: likeCount.count,
+      dislikes: dislikeCount.count,
+      layout: "layout",
     });
   } catch (err) {
     console.error(err);
@@ -74,18 +104,251 @@ router.get("/detail/:id", async (req, res) => {
   }
 });
 
-// Guide listing
-router.get("/listing", async (req, res) => {
+// ✅ Like/dislike handler
+router.post("/detail/:id/react", async (req, res) => {
+  if (!req.session.user) return res.redirect("/auth");
+
+  const { reaction } = req.body;
+  const userId = req.session.user.id;
+  const guideId = req.params.id;
+
+  if (!['like', 'dislike'].includes(reaction)) {
+    return res.status(400).send("Invalid reaction");
+  }
+
   try {
-    const results = await db.query("SELECT * FROM Guides");
+    const existing = await db.query(
+      "SELECT * FROM Likes WHERE Guide_ID = ? AND User_ID = ?",
+      [guideId, userId]
+    );
+
+    if (existing.length > 0) {
+      await db.query(
+        "UPDATE Likes SET Value = ? WHERE Guide_ID = ? AND User_ID = ?",
+        [reaction, guideId, userId]
+      );
+    } else {
+      await db.query(
+        "INSERT INTO Likes (Guide_ID, User_ID, Value) VALUES (?, ?, ?)",
+        [guideId, userId, reaction]
+      );
+    }
+
+    res.redirect(`/detail/${guideId}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to process reaction");
+  }
+});
+
+// Post a comment
+router.post("/detail/:id/comment", async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/auth");
+  }
+
+  const { comment } = req.body;
+  const userId = req.session.user.id;
+  const guideId = req.params.id;
+
+  try {
+    await db.query(
+      "INSERT INTO Comments (Guide_ID, User_ID, Comment_Text) VALUES (?, ?, ?)",
+      [guideId, userId, comment]
+    );
+    res.redirect(`/detail/${guideId}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to post comment");
+  }
+});
+
+// Guide listing with tag filter
+router.get("/listing", async (req, res) => {
+  const { tag } = req.query;
+
+  try {
+    let query = "SELECT * FROM Guides";
+    let params = [];
+
+    if (tag === "singleplayer" || tag === "multiplayer") {
+      query += " WHERE Tags = ?";
+      params.push(tag);
+    }
+
+    const results = await db.query(query, params);
+
     res.render("listing", {
-      title: 'listing',
+      title: "Listing",
       data: results,
-      layout: 'layout'
+      selectedTag: tag,
+      layout: "layout",
     });
   } catch (err) {
     console.error(err);
     res.status(500).send("Error loading listings");
+  }
+});
+
+// Tags route
+router.get("/Tags", async (req, res) => {
+  const { tag } = req.query;
+
+  try {
+    let results;
+    if (tag) {
+      results = await db.query("SELECT * FROM Guides WHERE Tags = ?", [tag]);
+    } else {
+      results = await db.query("SELECT * FROM Guides");
+    }
+
+    res.render("Tags", {
+      title: "Tags",
+      heading: "Browse by Tag",
+      selectedTag: tag,
+      tags: ['singleplayer', 'multiplayer'],
+      guides: results,
+      layout: "layout",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error loading tags");
+  }
+});
+
+router.get("/inbox", async (req, res) => {
+  if (!req.session.user) return res.redirect("/auth");
+
+  const userId = req.session.user.id;
+
+  try {
+    const threads = await db.query(`
+      SELECT DISTINCT u.User_ID, u.Username
+      FROM Users u
+      JOIN Messages m ON (u.User_ID = m.Sender_ID OR u.User_ID = m.Receiver_ID)
+      WHERE (m.Sender_ID = ? OR m.Receiver_ID = ?) AND u.User_ID != ?
+    `, [userId, userId, userId]);
+
+    res.render("inbox", {
+      title: "Inbox",
+      threads,
+      layout: "layout"
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error loading inbox");
+  }
+});
+
+router.get("/messages/:id", async (req, res) => {
+  if (!req.session.user) return res.redirect("/auth");
+
+  const userId = req.session.user.id;
+  const otherId = req.params.id;
+
+  try {
+    const messages = await db.query(`
+      SELECT m.*, u.Username AS SenderName
+      FROM Messages m
+      JOIN Users u ON m.Sender_ID = u.User_ID
+      WHERE (m.Sender_ID = ? AND m.Receiver_ID = ?)
+         OR (m.Sender_ID = ? AND m.Receiver_ID = ?)
+      ORDER BY m.Sent_At ASC
+    `, [userId, otherId, otherId, userId]);
+
+    const [otherUser] = await db.query("SELECT Username FROM Users WHERE User_ID = ?", [otherId]);
+
+    res.render("messages", {
+      messages,
+      receiverId: otherId,
+      receiverName: otherUser ? otherUser.Username : "Unknown",
+      title: "Messages",
+      layout: "layout"
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to load messages");
+  }
+});
+
+router.post("/send/:id", async (req, res) => {
+  if (!req.session.user) return res.redirect("/auth");
+
+  const senderId = req.session.user.id;
+  const receiverId = req.params.id;
+  const { message } = req.body;
+
+  try {
+    await db.query(
+      "INSERT INTO Messages (Sender_ID, Receiver_ID, Message_Text) VALUES (?, ?, ?)",
+      [senderId, receiverId, message]
+    );
+    res.redirect(`/profile/${receiverId}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to send message");
+  }
+});
+
+
+// Leaderboard: Top users by total likes
+router.get("/leaderboard", async (req, res) => {
+  try {
+    const leaderboard = await db.query(`
+      SELECT u.Username, COUNT(g.Guide_ID) AS guideCount, COUNT(l.Like_ID) AS likeCount
+      FROM Users u
+      LEFT JOIN Guides g ON u.User_ID = g.User_ID
+      LEFT JOIN Likes l ON g.Guide_ID = l.Guide_ID AND l.Value = 'like'
+      GROUP BY u.User_ID
+      ORDER BY likeCount DESC, guideCount DESC
+      LIMIT 10
+    `);
+
+    res.render("leaderboard", {
+      title: "Leaderboard",
+      users: leaderboard,
+      layout: "layout"
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to load leaderboard");
+  }
+});
+
+
+// Show guide submission form
+router.get("/submit", (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/auth");
+  }
+
+  res.render("submit", {
+    title: "Submit a Guide",
+    layout: "layout",
+  });
+});
+
+// Handle guide submission
+router.post("/submit", async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/auth");
+  }
+
+  const { title, description, tags } = req.body;
+  const userId = req.session.user.id;
+
+  try {
+    await db.query(
+      "INSERT INTO Guides (User_ID, Title, Description, Tags) VALUES (?, ?, ?, ?)",
+      [userId, title, description, tags]
+    );
+    res.redirect("/listing");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to submit guide");
   }
 });
 
@@ -100,7 +363,7 @@ router.get("/db_test", async (req, res) => {
   }
 });
 
-// Simple test routes
+// Hello/Goodbye
 router.get("/goodbye", (req, res) => {
   res.send("Goodbye world!");
 });
@@ -109,12 +372,11 @@ router.get("/hello/:name", (req, res) => {
   res.send(`Hello ${req.params.name}`);
 });
 
-// Auth page
+// Auth routes
 router.get("/auth", (req, res) => {
   res.render("auth", { error: null });
 });
 
-// Register
 router.post("/register", async (req, res) => {
   const { username, email, password } = req.body;
   try {
@@ -135,7 +397,6 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// Login
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -152,7 +413,7 @@ router.post("/login", async (req, res) => {
 
     req.session.user = {
       id: user.User_ID,
-      username: user.Username
+      username: user.Username,
     };
 
     res.redirect("/");
@@ -162,12 +423,10 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Logout
 router.get("/logout", (req, res) => {
   req.session.destroy(() => {
     res.redirect("/");
   });
 });
 
-// Export router
 module.exports = router;

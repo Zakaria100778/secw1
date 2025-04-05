@@ -1,58 +1,51 @@
 extends layout
 
 block content
-  .main-content
-    h1 #{title}
+  .listing-container
+    h2 Guide Listings
 
-    .tag-filters
-      a(href="/guides" class=!currentTag ? 'active' : '') All
-      a(href="/guides/singleplayer" class=currentTag === 'singleplayer' ? 'active' : '') Singleplayer
-      a(href="/guides/multiplayer" class=currentTag === 'multiplayer' ? 'active' : '') Multiplayer
-      a(href="/guides/fps" class=currentTag === 'fps' ? 'active' : '') FPS
+    .tag-buttons
+      a.tag-btn(href="/listing?tag=singleplayer" class=(selectedTag === 'singleplayer' ? 'active' : '')) Singleplayer
+      a.tag-btn(href="/listing?tag=multiplayer" class=(selectedTag === 'multiplayer' ? 'active' : '')) Multiplayer
+      a.tag-btn(href="/listing") All
 
-    if data && data.length > 0
-      table(border=1)
-        thead
-          tr
-            th Title
-            th Author
-            th Category
-            th Tag
-            th Actions
-        tbody
-          each guide in data
-            tr
-              td #{guide.Title || 'Untitled'}
-              td #{guide.Username || 'Unknown'}
-              td #{guide.Category || 'General'}
-              td #{guide.Tag || guide.Tags || 'Untagged'}
-              td
-                a(href=`/detail/${guide.Guide_ID}`) View Details
+    if data.length
+      each guide in data
+        .guide-card
+          h3
+            a(href=`/detail/${guide.Guide_ID}`)= guide.Title
+          p= guide.Description.substring(0, 150) + "..."
+          p.small Tag: #{guide.Tags}
     else
-      p No guides found. 🎮
+      p No guides found for this tag.
 
-    a(href="/") ← Back to Home
-
-    style.
-      .tag-filters {
-        margin-bottom: 20px;
-      }
-      .tag-filters a {
-        display: inline-block;
-        margin-right: 10px;
-        padding: 5px 15px;
-        background: #f0f0f0;
-        border-radius: 20px;
-        text-decoration: none;
-        color: #333;
-        transition: all 0.3s;
-      }
-      .tag-filters a:hover {
-        background: #6a5acd;
-        color: white;
-      }
-      .tag-filters a.active {
-        background: #6a5acd;
-        color: white;
-        font-weight: bold;
-      }
+  style.
+    .listing-container {
+      max-width: 900px;
+      margin: auto;
+      padding: 2rem;
+    }
+    .tag-buttons {
+      margin-bottom: 1.5rem;
+    }
+    .tag-btn {
+      padding: 8px 16px;
+      background: #3498db;
+      color: white;
+      margin-right: 10px;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+    .tag-btn.active {
+      background: #2c3e50;
+    }
+    .guide-card {
+      background: #f4f4f4;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+    }
+    .small {
+      font-size: 0.9rem;
+      color: #888;
+    }

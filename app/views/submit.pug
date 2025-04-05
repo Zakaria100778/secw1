@@ -1,0 +1,51 @@
+extends layout
+
+block content
+  .submit-container
+    h2 Submit a New Guide
+
+    form(action="/submit", method="POST")
+      label(for="title") Title:
+      input(type="text", name="title", required)
+
+      label(for="description") Description:
+      textarea(name="description", rows="5", required)
+
+      label(for="tags") Tag:
+      select(name="tags", required)
+        option(value="") -- Select Tag --
+        option(value="singleplayer") Singleplayer
+        option(value="multiplayer") Multiplayer
+
+      button(type="submit") Submit Guide
+
+  style.
+    .submit-container {
+      max-width: 700px;
+      margin: auto;
+      padding: 2rem;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 1rem;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2980b9;

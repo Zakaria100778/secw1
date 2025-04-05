@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  .inbox-container
+    h2 Inbox
+
+    if threads.length
+      ul
+        each user in threads
+          li
+            a(href=`/messages/${user.User_ID}`) Chat with #{user.Username}
+    else
+      p No messages yet.

@@ -1,18 +1,59 @@
 extends layout
 
 block content
-    .main-content
-        h1 #{user.Username}'s Profile
-        table(border=1)
-            tr
-                th Field
-                th Value
-            tr
-                td User ID
-                td #{user.User_ID}
-            tr
-                td Username
-                td #{user.Username}
-            tr
-                td Email
-                td #{user.Email || 'N/A'}
+  .profile-container
+    h1 #{user.Username}'s Profile
+
+    p
+      strong Username:
+      |  #{user.Username}
+
+    p
+      strong Email:
+      |  #{user.Email || 'N/A'}
+
+    p
+      strong Total Guides Submitted:
+      |  #{guideCount}
+
+    p
+      strong Total Likes Received:
+      |  #{likeCount}
+
+    if user.User_ID !== userSessionId
+      p
+        a.button(href=`/messages/${user.User_ID}`) Send Message
+
+  style.
+    .profile-container {
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 2rem;
+    }
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      color: #34495e;
+    }
+    strong {
+      color: #2ecc71;
+      font-weight: bold;
+    }
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+    .button:hover {
+      background-color: #2980b9;
+    }

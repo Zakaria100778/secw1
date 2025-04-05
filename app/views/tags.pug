@@ -1,0 +1,46 @@
+extends layout
+
+block content
+  .tag-container
+    h2= heading
+
+    .tag-buttons
+      each t in tags
+        a.tag-btn(href=`/Tags?tag=${t}` class=(t === selectedTag ? 'active' : ''))= t.charAt(0).toUpperCase() + t.slice(1)
+
+    if guides.length
+      each guide in guides
+        .guide-preview
+          h3
+            a(href=`/detail/${guide.Guide_ID}`)= guide.Title
+          p= guide.Description.substring(0, 150) + '...'
+          small Tag: #{guide.Tags}
+    else
+      p No guides available for this tag.
+
+  style.
+    .tag-container {
+      max-width: 900px;
+      margin: auto;
+      padding: 2rem;
+    }
+    .tag-buttons {
+      margin-bottom: 1.5rem;
+    }
+    .tag-btn {
+      padding: 8px 16px;
+      background: #3498db;
+      color: white;
+      margin-right: 10px;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+    .tag-btn.active {
+      background: #2c3e50;
+    }
+    .guide-preview {
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: #f8f8f8;
+      border-radius: 5px;
+    }

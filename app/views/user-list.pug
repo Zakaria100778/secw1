@@ -1,16 +1,81 @@
-extends layout
+eextends layout
 
 block content
-    .main-content
-        h1 User List
-        table(border=1)
+  .main-content
+    h1.page-title 👥 User List
+
+    if data.length
+      table.user-table
+        thead
+          tr
+            th ID
+            th Username
+            th Action
+        tbody
+          each user in data
             tr
-                th ID
-                th Username
-                th Action
-            each user in data
-                tr
-                    td #{user.User_ID}
-                    td #{user.Username}
-                    td
-                        a(href=`/profile/${user.User_ID}`) View Profile
+              td #{user.User_ID}
+              td #{user.Username}
+              td
+                a.profile-link(href=`/profile/${user.User_ID}`) View Profile
+    else
+      p.empty-msg No users found.
+
+  style.
+    .main-content {
+      max-width: 850px;
+      margin: 3rem auto;
+      padding: 2.5rem;
+      background-color: #fff;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .page-title {
+      text-align: center;
+      color: #2c3e50;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .user-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .user-table thead {
+      background-color: #f9f9f9;
+    }
+
+    .user-table th,
+    .user-table td {
+      padding: 14px 12px;
+      border: 1px solid #e1e1e1;
+    }
+
+    .user-table tr:nth-child(even) {
+      background-color: #fcfcfc;
+    }
+
+    .profile-link {
+      color: #3498db;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+
+    .profile-link:hover {
+      color: #2980b9;
+      text-decoration: underline;
+    }
+
+    .empty-msg {
+      text-align: center;
+      font-style: italic;
+      color: #888;
+      font-size: 1.1rem;
+      margin-top: 2rem;
+    }

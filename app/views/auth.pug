@@ -1,29 +1,99 @@
 extends layout
 
 block content
-  h2 Register
-  if error
-    p(style="color:red")= error
-  form(action="/register" method="POST")
-    label(for="username") Username:
-    input(type="text" name="username" required)
-    br
-    label(for="email") Email:
-    input(type="email" name="email" required)
-    br
-    label(for="password") Password:
-    input(type="password" name="password" required)
-    br
-    button(type="submit") Register
+  style.
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      padding: 40px;
+    }
 
-  hr
+    .form-container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+    }
 
-  h2 Login
-  form(action="/login" method="POST")
-    label(for="email") Email:
-    input(type="email" name="email" required)
-    br
-    label(for="password") Password:
-    input(type="password" name="password" required)
-    br
-    button(type="submit") Login
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      background-color: #007BFF;
+      color: white;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .error-message {
+      color: #e63946;
+      font-weight: bold;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    hr {
+      margin: 40px 0;
+      border: none;
+      border-top: 1px solid #eee;
+    }
+
+  .form-container
+    h2 Register
+    if error
+      p.error-message= error
+    form(action="/register" method="POST")
+      label(for="username") Username:
+      input(type="text" name="username" required)
+
+      label(for="email") Email:
+      input(type="email" name="email" required)
+
+      label(for="password") Password:
+      input(type="password" name="password" required)
+
+      button(type="submit") Register
+
+    hr
+
+    h2 Login
+    form(action="/login" method="POST")
+      label(for="email") Email:
+      input(type="email" name="email" required)
+
+      label(for="password") Password:
+      input(type="password" name="password" required)
+
+      button(type="submit") Login

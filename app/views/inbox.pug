@@ -2,12 +2,65 @@ extends layout
 
 block content
   .inbox-container
-    h2 Inbox
+    h2.inbox-title Inbox
 
     if threads.length
-      ul
+      ul.thread-list
         each user in threads
-          li
+          li.thread-item
             a(href=`/messages/${user.User_ID}`) Chat with #{user.Username}
     else
-      p No messages yet.
+      p.empty-msg No messages yet.
+
+  style.
+    .inbox-container {
+      max-width: 700px;
+      margin: 3rem auto;
+      padding: 2rem 2.5rem;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .inbox-title {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    .thread-list {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .thread-item {
+      background-color: #f7f9fa;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      transition: background-color 0.3s ease;
+    }
+
+    .thread-item:hover {
+      background-color: #e6f2ff;
+    }
+
+    .thread-item a {
+      text-decoration: none;
+      color: #2980b9;
+      font-weight: 500;
+      font-size: 1.1rem;
+    }
+
+    .thread-item a:hover {
+      text-decoration: underline;
+    }
+
+    .empty-msg {
+      color: #888;
+      font-style: italic;
+      text-align: center;
+      font-size: 1rem;
+    }

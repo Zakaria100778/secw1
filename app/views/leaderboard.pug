@@ -3,10 +3,10 @@ extends layout
 block content
   .leaderboard-container
     h1 Leaderboard 🏆
-    p The top users ranked by total likes on their guides.
+    p.description The top users ranked by total likes on their guides.
 
     if users.length
-      table
+      table.leaderboard-table
         thead
           tr
             th Rank
@@ -15,38 +15,87 @@ block content
             th Likes Received
         tbody
           each user, index in users
-            tr
-              td #{index + 1}
+            tr(class=index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '')
+              td 
+                if index === 0
+                  | 🥇 
+                else if index === 1
+                  | 🥈 
+                else if index === 2
+                  | 🥉 
+                else 
+                  | #{index + 1}
               td= user.Username
               td= user.guideCount
               td= user.likeCount
     else
-      p No users found.
+      p.empty-msg No users found.
 
   style.
     .leaderboard-container {
-      max-width: 800px;
-      margin: auto;
-      padding: 2rem;
+      max-width: 850px;
+      margin: 3rem auto;
+      padding: 2.5rem;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
+
     h1 {
       text-align: center;
       color: #2c3e50;
-      margin-bottom: 1rem;
+      font-size: 2.3rem;
+      margin-bottom: 0.5rem;
     }
-    table {
+
+    .description {
+      text-align: center;
+      color: #7f8c8d;
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
+
+    .leaderboard-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 1rem;
+      font-size: 1rem;
     }
+
     th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
+      padding: 14px 12px;
+      border: 1px solid #e1e1e1;
       text-align: center;
     }
+
     th {
-      background-color: #f2f2f2;
+      background-color: #f9f9f9;
+      color: #2c3e50;
+      font-weight: 600;
     }
-    tr:nth-child(even) {
-      background-color: #fafafa;
+
+    tr:nth-child(even):not(.gold):not(.silver):not(.bronze) {
+      background-color: #fcfcfc;
+    }
+
+    .gold {
+      background-color: #fffbea;
+      font-weight: bold;
+    }
+
+    .silver {
+      background-color: #f0f0f5;
+      font-weight: bold;
+    }
+
+    .bronze {
+      background-color: #fdf2e9;
+      font-weight: bold;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: #888;
+      font-style: italic;
+      margin-top: 1.5rem;
     }

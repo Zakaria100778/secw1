@@ -2,45 +2,113 @@ extends layout
 
 block content
   .tag-container
-    h2= heading
+    h2.page-title= heading
 
     .tag-buttons
       each t in tags
-        a.tag-btn(href=`/Tags?tag=${t}` class=(t === selectedTag ? 'active' : ''))= t.charAt(0).toUpperCase() + t.slice(1)
+        a.tag-btn(href=`/Tags?tag=${t}`, class=(t === selectedTag ? 'active' : ''))= t.charAt(0).toUpperCase() + t.slice(1)
 
     if guides.length
-      each guide in guides
-        .guide-preview
-          h3
-            a(href=`/detail/${guide.Guide_ID}`)= guide.Title
-          p= guide.Description.substring(0, 150) + '...'
-          small Tag: #{guide.Tags}
+      .guide-list
+        each guide in guides
+          .guide-preview
+            h3.guide-title
+              a(href=`/detail/${guide.Guide_ID}`)= guide.Title
+            p.guide-snippet= guide.Description.substring(0, 150) + '...'
+            small.tag-label Tag: #{guide.Tags}
     else
-      p No guides available for this tag.
+      p.empty-msg No guides available for this tag.
 
   style.
     .tag-container {
-      max-width: 900px;
-      margin: auto;
-      padding: 2rem;
+      max-width: 1000px;
+      margin: 3rem auto;
+      padding: 2.5rem;
+      background-color: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
+
+    .page-title {
+      text-align: center;
+      color: #2c3e50;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+
     .tag-buttons {
-      margin-bottom: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 2rem;
     }
+
     .tag-btn {
-      padding: 8px 16px;
-      background: #3498db;
+      padding: 10px 18px;
+      background-color: #3498db;
       color: white;
-      margin-right: 10px;
-      border-radius: 5px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    .tag-btn:hover {
+      background-color: #2980b9;
+    }
+
+    .tag-btn.active {
+      background-color: #2c3e50;
+    }
+
+    .guide-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .guide-preview {
+      background-color: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .guide-preview:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .guide-title a {
+      font-size: 1.4rem;
+      color: #2c3e50;
       text-decoration: none;
     }
-    .tag-btn.active {
-      background: #2c3e50;
+
+    .guide-title a:hover {
+      text-decoration: underline;
     }
-    .guide-preview {
-      padding: 1rem;
-      margin-bottom: 1rem;
-      background: #f8f8f8;
-      border-radius: 5px;
+
+    .guide-snippet {
+      margin-top: 0.5rem;
+      font-size: 1.05rem;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .tag-label {
+      font-size: 0.9rem;
+      color: #888;
+      font-style: italic;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: #888;
+      font-style: italic;
+      font-size: 1.1rem;
+      margin-top: 2rem;
     }

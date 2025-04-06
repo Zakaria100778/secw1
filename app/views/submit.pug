@@ -2,9 +2,9 @@ extends layout
 
 block content
   .submit-container
-    h2 Submit a New Guide
+    h2.page-title ✍️ Submit a New Guide
 
-    form(action="/submit", method="POST")
+    form(action="/submit", method="POST", class="submit-form")
       label(for="title") Title:
       input(type="text", name="title", required)
 
@@ -17,35 +17,67 @@ block content
         option(value="singleplayer") Singleplayer
         option(value="multiplayer") Multiplayer
 
-      button(type="submit") Submit Guide
+      button(type="submit") 🚀 Submit Guide
 
   style.
     .submit-container {
-      max-width: 700px;
-      margin: auto;
-      padding: 2rem;
+      max-width: 750px;
+      margin: 3rem auto;
+      padding: 2.5rem;
+      background-color: #fff;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    label {
+
+    .page-title {
+      text-align: center;
+      font-size: 2rem;
+      color: #2c3e50;
+      margin-bottom: 2rem;
+    }
+
+    .submit-form label {
       display: block;
-      margin-top: 1rem;
-      font-weight: bold;
+      margin-top: 1.5rem;
+      font-weight: 600;
+      color: #34495e;
     }
-    input, textarea, select {
+
+    .submit-form input,
+    .submit-form textarea,
+    .submit-form select {
       width: 100%;
-      padding: 0.5rem;
+      padding: 0.75rem 1rem;
       margin-top: 0.5rem;
-      border-radius: 4px;
+      border-radius: 8px;
       border: 1px solid #ccc;
+      font-size: 1rem;
+      transition: border 0.3s ease;
     }
-    button {
-      margin-top: 1rem;
-      background-color: #3498db;
+
+    .submit-form input:focus,
+    .submit-form textarea:focus,
+    .submit-form select:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+
+    .submit-form button {
+      margin-top: 2rem;
+      background-color: #2ecc71;
       color: white;
       border: none;
-      padding: 10px 20px;
+      padding: 12px 24px;
       font-weight: bold;
-      border-radius: 4px;
+      font-size: 1rem;
+      border-radius: 8px;
       cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
     }
-    button:hover {
-      background-color: #2980b9;
+
+    .submit-form button:hover {
+      background-color: #27ae60;
+      transform: translateY(-2px);
+    }

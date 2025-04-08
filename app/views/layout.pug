@@ -1,5 +1,30 @@
-html 
-    head    
-        title #{title}
-    body 
-        block content
+doctype html
+html
+  head
+    title #{title}
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Segoe+UI:400,700&display=swap")
+    style.
+      body {
+        background-image: url('/images/gaming.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .main-content {
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        margin: 2rem auto;
+        max-width: 900px;
+      }
+  body
+    block content

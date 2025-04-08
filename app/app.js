@@ -248,6 +248,7 @@ router.get("/messages/:id", async (req, res) => {
   const otherId = req.params.id;
 
   try {
+    // Fetch conversation messages
     const messages = await db.query(`
       SELECT m.*, u.Username AS SenderName
       FROM Messages m
@@ -257,18 +258,19 @@ router.get("/messages/:id", async (req, res) => {
       ORDER BY m.Sent_At ASC
     `, [userId, otherId, otherId, userId]);
 
+    // Fetch the recipient username
     const [otherUser] = await db.query("SELECT Username FROM Users WHERE User_ID = ?", [otherId]);
 
     res.render("messages", {
+      title: "Messages",
       messages,
       receiverId: otherId,
       receiverName: otherUser ? otherUser.Username : "Unknown",
-      title: "Messages",
       layout: "layout"
     });
 
   } catch (err) {
-    console.error(err);
+    console.error("Failed to load messages:", err);
     res.status(500).send("Failed to load messages");
   }
 });
